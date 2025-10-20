@@ -1,0 +1,25 @@
+`timescale 1ns / 1ps //use if needed
+module TLC_TB;
+reg clk,rst;
+wire [2:0]NS,EW;
+
+TLC dut(.clk(clk),.rst(rst),.NS(NS),.EW(EW));
+
+initial begin
+ clk=0;#1;
+ forever #5 clk = ~clk;
+end
+
+initial begin
+#1;$monitor("TIME=%t |state=%b|count=%b |  NS=%b || EW =%b",$time,dut.state,dut.count,NS,EW);
+    rst=1;
+
+#20 rst=0;
+
+#500;
+
+$finish;
+$display("Simulation finished at time %0t", $time);
+end
+endmodule
+
