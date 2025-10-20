@@ -1,0 +1,98 @@
+
+module TLC(input clk,rst,output reg [2:0]NS,EW);
+//FSM STATE
+parameter s0=3'b000;
+parameter s1=3'b001;
+parameter s2=3'b010;
+parameter s3=3'b011;
+parameter s4=3'b100;
+parameter s5=3'b101;
+
+reg[3:0]state,next_state;
+reg [3:0]count;
+//COUNTER
+always@(posedge clk)begin
+if(rst)
+count<=4'b0000;
+else if (state==next_state) begin
+case(state)
+s0,s3:if(count<14) count<=count+1;
+s1,s2,s4,s5: if(count<2) count<=count+1;
+default: count <= 4'b0000;
+endcase
+end
+else begin
+count<=4'b0000;
+end
+end
+
+always@(posedge clk)begin
+if(rst)begin
+state<=s0;
+end
+else
+state<=next_state;
+end
+//STATE ADN DELAY
+always@(*)begin
+next_state=state;
+case(state)
+    s0:if (count==14) next_state=s1;
+    //else next_state=s0;
+    s1:if (count==2) next_state=s2;
+    //else next_state=s1;
+    s2:if (count==2) next_state=s3;
+    //else next_state=s2;
+    s3:if (count==14) next_state=s4;
+    //else next_state=s3;
+    s4:if (count==2) next_state=s5;
+    //else next_state=s4;
+    s5:if (count==2) next_state=s0;
+    //else next_state=s5;
+    default next_state=s0;
+endcase
+end
+//FOR OUTPUT 
+//GREEN=100,//YELLOW=010,RED=001
+always@(*)begin
+    case(state)
+    s0:begin
+    NS=3'b100;//GREEN=100
+    EW=3'b001;//RED=001
+    end
+    
+    s1:begin
+    NS=3'b010;//YELLOW=010
+    EW=3'b001;//RED=001
+    end
+    
+    s2:begin
+    NS=3'b001;//RED=001
+    EW=3'b001;//RED=001
+    end
+    
+    s3:begin
+    NS=3'b001;//RED=001
+    EW=3'b100;//GREEN=100
+    end
+    
+    s4:begin
+    NS=3'b001;//GREEN=100
+    EW=3'b010;//YELLOW=010
+    end
+    
+    s5:begin
+    NS=3'b001;//RED=001
+    EW=3'b001;//RED=001
+    end
+    
+    default:begin
+    NS=3'b001;//RED=001
+    EW=3'b001;//RED=001
+    
+    end
+    endcase
+end
+endmodule
+
+
